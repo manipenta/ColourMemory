@@ -40,6 +40,9 @@ public class MainActivity extends AppCompatActivity implements CardAdapter.Cards
     private ArrayList<CardModel> mCardList;
     private Vibrator mVibrator;
 
+    private MediaPlayer mPlayCard;
+    private MediaPlayer mPlayDisappear;
+
     private TextView mTitle;
 
 
@@ -57,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements CardAdapter.Cards
         mCardGrid.addItemDecoration(new GridSpaceDecorator(this, getResources().getInteger(R.integer.decoration_space)));
 
         mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        mPlayCard = MediaPlayer.create(this,R.raw.card);
+        mPlayDisappear = MediaPlayer.create(this,R.raw.disappear);
 
         if (savedInstanceState != null) {
             restoreGame(savedInstanceState);
@@ -158,21 +163,6 @@ public class MainActivity extends AppCompatActivity implements CardAdapter.Cards
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Plays a sound.
-     *
-     * @param sound the resource identifier for the sound to play.
-     */
-    public void playSound(int sound) {
-        MediaPlayer mPlayer = MediaPlayer.create(this.getApplicationContext(), sound);
-        mPlayer.start();
-        mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                mediaPlayer.release();
-            }
-        });
-    }
 
 
     /**
@@ -198,11 +188,11 @@ public class MainActivity extends AppCompatActivity implements CardAdapter.Cards
                     mAdapter.disappearItem(first.getModel());
                     mAdapter.disappearItem(second.getModel());
                     if (StoredInfo.isSoundEnabled(MainActivity.this.getApplicationContext())) {
-                        playSound(R.raw.disappear);
+                        mPlayDisappear.start();
                     }
                     if (mCardNum <= 0) {
                         if (StoredInfo.isSoundEnabled(MainActivity.this.getApplicationContext())) {
-                            playSound(R.raw.tada);
+                            MediaPlayer.create(MainActivity.this,R.raw.tada).start();
                         }
                         mDialog = GameFinishedDialog.newInstance(mTotalPoint);
                         mDialog.show(MainActivity.this.getSupportFragmentManager(), "Dialog");
@@ -218,7 +208,7 @@ public class MainActivity extends AppCompatActivity implements CardAdapter.Cards
                 @Override
                 public void run() {
                     if (StoredInfo.isSoundEnabled(MainActivity.this.getApplicationContext())) {
-                        playSound(R.raw.card);
+                        mPlayCard.start();
                     }
                     first.flipBackCard();
                     second.flipBackCard();
